@@ -27,7 +27,7 @@ const ConfirmOrderItem = ({ price, name, quantity, image }) => {
           flexDirection: "row",
         }}
       >
-        <Text>{quantity}</Text>
+        <Text>{quantity} X </Text>
         <Text
           style={{
             marginHorizontal: 10,

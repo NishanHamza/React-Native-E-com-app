@@ -32,7 +32,9 @@ const CartItem = ({
           borderBottomRightRadius: 100,
         }}
       >
-        <TouchableOpacity onPress={()=> navigate.navigate("productdetails", {id})}>
+        <TouchableOpacity
+          onPress={() => navigate.navigate("productdetails", { id })}
+        >
           <Image
             source={{
               uri: imgSrc,
@@ -67,11 +69,33 @@ const CartItem = ({
       </View>
 
       <View style={styles.qtyContainer}>
-        <TouchableOpacity onPress={() => decrementHandler(id, qty)}>
+        <TouchableOpacity
+          onPress={() =>
+            decrementHandler(
+              (product = id),
+              name,
+              (price = amount),
+              stock,
+              (image = imgSrc),
+              (quantity = qty)
+            )
+          }
+        >
           <Avatar.Icon icon={"minus"} {...iconOptions} />
         </TouchableOpacity>
         <Text style={styles.qtyText}>{qty}</Text>
-        <TouchableOpacity onPress={() => incrementHandler(id, qty, stock)}>
+        <TouchableOpacity
+          onPress={() =>
+            incrementHandler(
+              (product = id),
+              name,
+              (price = amount),
+              stock,
+              (image = imgSrc),
+              (quantity = qty)
+            )
+          }
+        >
           <Avatar.Icon icon={"plus"} {...iconOptions} />
         </TouchableOpacity>
       </View>

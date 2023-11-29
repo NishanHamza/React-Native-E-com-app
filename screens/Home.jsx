@@ -1,84 +1,79 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
 import { Avatar, Button } from "react-native-paper";
 import SearchModal from "../components/SearchModal";
 import ProductCard from "../components/ProductCard";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import Footer from "../components/Footer";
 import Heading from "../components/Heading";
-
-
-export const products = [
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    category: "Laptop",
-    _id: "sadadfff",
-    images: [
-      {
-        url: "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-      },
-    ],
-  },
-  {
-    price: 312,
-    name: "Sample2",
-    stock: 20,
-    category: "IDK",
-    _id: "sadadsafsdffff",
-    images: [
-      {
-        url: "https://i.seadn.io/gae/2hDpuTi-0AMKvoZJGd-yKWvK4tKdQr_kLIpB_qSeMau2TNGCNidAosMEvrEXFO9G6tmlFlPQplpwiqirgrIPWnCKMvElaYgI-HiVvXc?auto=format&dpr=1&w=1920",
-      },
-    ],
-  },
-  {
-    price: 54,
-    name: "Sample3",
-    stock: 20,
-    category: "Shoe",
-    _id: "sadadffgggff",
-    images: [
-      {
-        url: "https://i.seadn.io/gae/2hDpuTi-0AMKvoZJGd-yKWvK4tKdQr_kLIpB_qSeMau2TNGCNidAosMEvrEXFO9G6tmlFlPQplpwiqirgrIPWnCKMvElaYgI-HiVvXc?auto=format&dpr=1&w=1920",
-      },
-    ],
-  },
-];
-
-const categories = [
-  { category: "ehhe1", _id: "sdff" },
-  { category: "ehhe2", _id: "sdffad" },
-  { category: "ehhe3", _id: "sdfffagg" },
-  { category: "ehhe4", _id: "sdfsddfad" },
-  { category: "ehhe5", _id: "sdffffgad" },
-  { category: "ehhe6", _id: "sdffghhedad" },
-];
-
+import { useDispatch, useSelector } from "react-redux";
+import { getAllProducts } from "../redux/actions/productAction";
+import { useSetCategories } from "../utils/hooks";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
+import AppStart from "../components/AppStart";
 
 const Home = () => {
- 
-
-  const [category, setCategory] = useState();
-
-  const categoriesHandler = (id) => {
-    setCategory(id);
-  };
+  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]);
 
   const [activeSearch, setActiveSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const addToCardHandler = (id) => {
-    console.log("add to cart", id);
+  const navigate = useNavigation();
+
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
+
+  const { products, loading } = useSelector((state) => state.product);
+
+  const categoriesHandler = (id) => {
+    if (category === id) {
+      setCategory("");
+    } else {
+      setCategory(id);
+    }
   };
 
-  const navigate = useNavigation();
+  const addToCartHandler = (product, name, price, stock, image, quantity) => {
+    if (stock == 0) {
+      Toast.show({
+        type: "error",
+        text1: "Out of Stock!",
+      });
+    } else {
+      dispatch({
+        type: "addToCart",
+        payload: { product, name, price, stock, image, quantity },
+      });
+      Toast.show({
+        type: "success",
+        text1: "Succesfully Added To The Cart!",
+      });
+    }
+  };
+
+  useSetCategories(setCategories, isFocused);
+
+  useEffect(() => {
+    const timeOutId = setTimeout(() => {
+      dispatch(getAllProducts(searchQuery, category));
+    }, 0);
+    return () => {
+      clearTimeout(timeOutId);
+    };
+  }, [dispatch, searchQuery, category, isFocused]);
 
   return (
     <>
+      {loading && <AppStart />}
       {activeSearch && (
         <SearchModal
           searchQuery={searchQuery}
@@ -110,6 +105,7 @@ const Home = () => {
             <TouchableOpacity
               onPress={() => {
                 setActiveSearch(!activeSearch);
+                setCategory("");
               }}
             >
               <Avatar.Icon
@@ -171,7 +167,7 @@ const Home = () => {
                 name={item.name}
                 price={item.price}
                 image={item.images[0]?.url}
-                addToCardHandler={addToCardHandler}
+                addToCartHandler={addToCartHandler}
                 id={item._id}
                 key={item._id}
                 i={index}

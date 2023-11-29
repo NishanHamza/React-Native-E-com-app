@@ -9,8 +9,8 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { colors} from "../styles/styles";
+import React, { useEffect } from "react";
+import { colors } from "../styles/styles";
 import { Headline, Searchbar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
@@ -20,7 +20,6 @@ const SearchModal = ({
   products = [],
   setActiveSearch,
 }) => {
-
   const navigate = useNavigation();
 
   const backAction = () => {
@@ -73,7 +72,7 @@ const SearchModal = ({
   );
 };
 
-const SearchItem = ({imgSrc, name, price, handler}) => (
+const SearchItem = ({ imgSrc, name, price, handler }) => (
   <TouchableOpacity onPress={handler}>
     <View
       style={{
@@ -108,7 +107,9 @@ const SearchItem = ({imgSrc, name, price, handler}) => (
         }}
       >
         <Text numberOfLines={1}>{name}</Text>
-        <Headline numberOfLines={1} style={{ fontWeight: "900" }}>{price}$</Headline>
+        <Headline numberOfLines={1} style={{ fontWeight: "900" }}>
+          {price}$
+        </Headline>
       </View>
     </View>
   </TouchableOpacity>

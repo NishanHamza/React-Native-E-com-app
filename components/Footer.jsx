@@ -3,12 +3,12 @@ import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { colors } from "../styles/styles";
 import { Avatar } from "react-native-paper";
+import { useSelector } from "react-redux";
 
 const Footer = ({ activeRoute = "home" }) => {
   const navigate = useNavigation();
 
-  const loading = false;
-  const isAuthenticated = true;
+  const { loading, isAuthenticated } = useSelector((state) => state.user);
 
   const navigationHandler = (key) => {
     switch (key) {
@@ -43,6 +43,9 @@ const Footer = ({ activeRoute = "home" }) => {
           backgroundColor: colors.color1,
           borderTopLeftRadius: 120,
           borderTopRightRadius: 120,
+          position: "absolute",
+          width: "100%",
+          bottom: 0,
         }}
       >
         <View

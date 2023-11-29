@@ -6,92 +6,36 @@ import Heading from "../components/Heading";
 import { Button } from "react-native-paper";
 import CartItem from "../components/CartItem";
 import { useNavigation } from "@react-navigation/native";
-
-export const cartItems = [
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadadffagaf",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadaergadfff",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadagjsdfff",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadaahsadfff",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadasdgfgdfff",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadawwgvddfff",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadhheradfff",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-  {
-    price: 31,
-    name: "Sample",
-    stock: 20,
-    product: "sadadadasdfff",
-    quantity: 2,
-    image:
-      "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
 
 const Cart = () => {
-  const incrementHandler = (id, qty, stock) => {
-    console.log("increasing", id, qty, stock);
-  };
-
-  const decrementHandler = (id, qty) => {
-    console.log("decreasing", id, qty);
-  };
-
+  const { cartItems } = useSelector((state) => state.cart);
   const navigate = useNavigation();
+  const dispatch = useDispatch();
+
+  const incrementHandler = (product, name, price, stock, image, quantity) => {
+    if (stock <= quantity) return;
+    quantity += 1;
+    dispatch({
+      type: "addToCart",
+      payload: { product, name, price, stock, image, quantity },
+    });
+  };
+
+  const decrementHandler = (product, name, price, stock, image, quantity) => {
+    if (quantity <= 1) {
+      dispatch({
+        type: "removeFromCart",
+        payload: product,
+      });
+    } else {
+      quantity -= 1;
+      dispatch({
+        type: "addToCart",
+        payload: { product, name, price, stock, image, quantity },
+      });
+    }
+  };
 
   return (
     <View
@@ -114,21 +58,25 @@ const Cart = () => {
         }}
       >
         <ScrollView showsVerticalScrollIndicator={false}>
-          {cartItems.map((i, index) => (
-            <CartItem
-              key={i.product}
-              id={i.product}
-              name={i.name}
-              amount={i.price}
-              stock={i.stock}
-              imgSrc={i.image}
-              index={index}
-              qty={i.quantity}
-              incrementHandler={incrementHandler}
-              decrementHandler={decrementHandler}
-              navigate={navigate}
-            />
-          ))}
+          {cartItems.length > 0 ? (
+            cartItems.map((i, index) => (
+              <CartItem
+                key={i.product}
+                id={i.product}
+                name={i.name}
+                amount={i.price}
+                stock={i.stock}
+                imgSrc={i.image}
+                index={index}
+                qty={i.quantity}
+                incrementHandler={incrementHandler}
+                decrementHandler={decrementHandler}
+                navigate={navigate}
+              />
+            ))
+          ) : (
+            <Text style={{ textAlign: "center", fontSize: 18 }}>No Items</Text>
+          )}
         </ScrollView>
       </View>
       <View
@@ -138,8 +86,16 @@ const Cart = () => {
           paddingHorizontal: 35,
         }}
       >
-        <Text>5 items</Text>
-        <Text> 5$</Text>
+        <Text>
+          {cartItems.length} {cartItems.length > 1 ? "items" : "item"}{" "}
+        </Text>
+        <Text>
+          $
+          {cartItems.reduce(
+            (prev, curr) => prev + curr.quantity * curr.price,
+            0
+          )}
+        </Text>
       </View>
       <TouchableOpacity
         onPress={

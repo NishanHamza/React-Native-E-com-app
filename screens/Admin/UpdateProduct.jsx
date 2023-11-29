@@ -1,5 +1,5 @@
 import { View, Text, ScrollView } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   colors,
   defaultStyle,
@@ -11,48 +11,48 @@ import Loader from "../../components/Loader";
 import Header from "../../components/Header";
 import { Button, TextInput } from "react-native-paper";
 import SelectComponent from "../../components/SelectComponent";
+import { useMsgErrOther, useSetCategories } from "../../utils/hooks";
+import { useIsFocused } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { getProductDetails } from "../../redux/actions/productAction";
+import { updateProduct } from "../../redux/actions/otherAction";
 
 const UpdateProduct = ({ navigation, route }) => {
-  const loading = false;
-  const loadingOther = false;
+  const isFocused = useIsFocused();
+  const dispatch = useDispatch();
 
-  const images = [
-    {
-      url: "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-      _id: "afsdgsdgsd",
-    },
-    {
-      url: "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-      _id: "afsdgsdadfagsd",
-    },
-  ];
-
+  const [visible, setVisible] = useState(false);
   const [id] = useState(route.params.id);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
-  const [category, setCategory] = useState("Laptop");
+  const [category, setCategory] = useState("");
   const [categoryID, setCategoryID] = useState("");
-  const [categories, setCategories] = useState([
-    {
-      _id: "sdffgd",
-      category: "Laptop",
-    },
-    {
-      _id: "sdETFfd",
-      category: "Footwear",
-    },
-    {
-      _id: "sdHHfd",
-      category: "Cloths",
-    },
-  ]);
-  const [visible, setVisible] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  const { product, loading } = useSelector((state) => state.product);
+
+  useSetCategories(setCategories, isFocused);
+
+  const loadingOther = useMsgErrOther(dispatch, navigation, "admin");
 
   const submitHandler = () => {
-    console.log(name, description, price, stock, categoryID);
+    dispatch(updateProduct(id, name, description, price, stock, categoryID));
   };
+
+  useEffect(() => {
+    dispatch(getProductDetails(id));
+  }, [dispatch, id, isFocused]);
+
+  useEffect(() => {
+    setName(product.name);
+    setDescription(product.description);
+    setPrice(String(product.price));
+    setStock(String(product.stock));
+    setCategory(product.category?.category);
+    setCategoryID(product.category?._id);
+  }, [product]);
 
   return (
     <>
@@ -81,7 +81,10 @@ const UpdateProduct = ({ navigation, route }) => {
               <Button
                 textColor={colors.color1}
                 onPress={() =>
-                  navigation.navigate("productimage", { id, images })
+                  navigation.navigate("productimage", {
+                    id,
+                    images: product.images,
+                  })
                 }
               >
                 Manage Images

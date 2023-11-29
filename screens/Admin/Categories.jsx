@@ -14,32 +14,29 @@ import {
 } from "../../styles/styles";
 import Header from "../../components/Header";
 import { Avatar, Button, TextInput } from "react-native-paper";
+import { useIsFocused } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { addCategory, deleteCategory } from "../../redux/actions/otherAction";
+import { useMsgErrOther, useSetCategories } from "../../utils/hooks";
 
-const categories = [
-  {
-    name: "Laptop",
-    id: "dgsdfg",
-  },
-  {
-    name: "IDK",
-    id: "dgssdgdfg",
-  },
-  {
-    name: "KOLA",
-    id: "dgssqadfg",
-  },
-];
+const Categories = ({ navigation }) => {
+  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]);
 
-const Categories = () => {
-  const deleteHandler = (id) => {
-    console.log("Category Deleted", id);
+  const isFocused = useIsFocused();
+  const dispatch = useDispatch();
+
+  useSetCategories(setCategories, isFocused);
+
+  const loading = useMsgErrOther(dispatch, navigation, "admin");
+
+  const submitHandler = () => {
+    dispatch(addCategory(category));
   };
 
-  const [category, setCategory] = useState();
-
-  const submitHandler = () => {};
-
-  const loading = false;
+  const deleteHandler = (id) => {
+    dispatch(deleteCategory(id));
+  };
 
   return (
     <View style={{ ...defaultStyle, backgroundColor: colors.color5 }}>
@@ -62,9 +59,9 @@ const Categories = () => {
         >
           {categories.map((item) => (
             <CategoryCard
-              key={item.id}
-              id={item.id}
-              name={item.name}
+              key={item._id}
+              id={item._id}
+              name={item.category}
               deleteHandler={deleteHandler}
             />
           ))}
@@ -80,7 +77,7 @@ const Categories = () => {
         />
         <Button
           disabled={!category}
-          onPress={() => submitHandler}
+          onPress={() => submitHandler()}
           textColor={colors.color2}
           loading={loading}
         >

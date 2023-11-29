@@ -5,18 +5,22 @@ import {
   Dimensions,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import { colors, defaultStyle } from "../styles/styles";
 import Carousel from "react-native-snap-carousel";
 import { Avatar, Button } from "react-native-paper";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useIsFocused } from "@react-navigation/native";
+import { getProductDetails } from "../redux/actions/productAction";
 
 SLIDER_WIDTH = Dimensions.get("window").width;
 ITEM_WIDTH = SLIDER_WIDTH;
 
- export const iconOptions = {
+export const iconOptions = {
   size: 20,
   style: {
     borderRadius: 5,
@@ -27,27 +31,16 @@ ITEM_WIDTH = SLIDER_WIDTH;
 };
 
 const ProductDetails = ({ route: { params } }) => {
-  console.log(params.id);
+  const {
+    product: { name, price, stock, description, images },
+  } = useSelector((state) => state.product);
 
   const isCarousel = useRef(null);
 
   const [quantity, setQuantity] = useState(1);
 
-  const price = 31500;
-  const name = "Macbook Pro";
-  const stock = 50;
-  const description =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas pulvinar ligula eu nibh faucibus hendrerit. Proin ut fermentum nunc. Sed ullamcorper nulla sit amet purus pulvinar, nec eleifend lectus consectetur. Sed feugiat ipsum a blandit sollicitudin. Donec hendrerit, est ac dignissim fringilla, erat elit sollicitudin risus, vitae fringilla massa nulla ac felis. In luctus dolor eu lorem euismod iaculis. Nullam in dolor sit amet diam varius placerat. Donec placerat arcu nec sapien congue mattis. Aliquam eget malesuada arcu. In pharetra purus nec augue congue euismod. ";
-  const images = [
-    {
-      id: "afsdfd",
-      url: "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-    },
-    {
-      id: "afsdffafafad",
-      url: "https://www.pngitem.com/pimgs/m/433-4336756_shoes-png-transparent-images-pair-of-shoes-png.png",
-    },
-  ];
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
 
   const incrementqty = () => {
     if (stock <= quantity) return;
@@ -59,16 +52,27 @@ const ProductDetails = ({ route: { params } }) => {
     setQuantity((prev) => prev - 1);
   };
 
-  const addToCarthandler =() => {
-    if( stock ===0 ) return Toast.show({
-      type: "error",
-      text1: "Out of Stock!"
-    }); 
-    Toast.show({
-      type:'success',
-      text1: "Succesfully Added To The Cart!"
-    })
-  }
+  const addToCartHandler = (product, name, price, stock, image, quantity) => {
+    if (stock == 0) {
+      Toast.show({
+        type: "error",
+        text1: "Out of Stock!",
+      });
+    } else {
+      dispatch({
+        type: "addToCart",
+        payload: { product, name, price, stock, image, quantity },
+      });
+      Toast.show({
+        type: "success",
+        text1: "Succesfully Added To The Cart!",
+      });
+    }
+  };
+
+  useEffect(() => {
+    dispatch(getProductDetails(params.id));
+  }, [dispatch, params.id, isFocused]);
 
   return (
     <View
@@ -117,16 +121,18 @@ const ProductDetails = ({ route: { params } }) => {
         >
           {price}$
         </Text>
-        <Text
-          style={{
-            letterSpacing: 1,
-            lineHeight: 20,
-            marginVertical: 15,
-          }}
-          numberOfLines={10}
-        >
-          {description}
-        </Text>
+        <ScrollView>
+          <Text
+            style={{
+              letterSpacing: 1,
+              lineHeight: 20,
+              marginVertical: 15,
+            }}
+            // numberOfLines={10}
+          >
+            {description}
+          </Text>
+        </ScrollView>
         <View
           style={{
             flexDirection: "row",
@@ -160,8 +166,22 @@ const ProductDetails = ({ route: { params } }) => {
             </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity activeOpacity={0.9} onPress={addToCarthandler}>
-          <Button icon={"cart"} style={style.btn} textColor={colors.color2}>Add To Cart</Button>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() =>
+            addToCartHandler(
+              (product = params.id),
+              name,
+              price,
+              stock,
+              (image = images[0]?.url),
+              quantity
+            )
+          }
+        >
+          <Button icon={"cart"} style={style.btn} textColor={colors.color2}>
+            Add To Cart
+          </Button>
         </TouchableOpacity>
       </View>
     </View>

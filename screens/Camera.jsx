@@ -21,9 +21,9 @@ const CameraComponent = ({ navigation, route }) => {
       return alert("Permission To Access Gallery Is Required!");
     }
     const data = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
+      // allowsEditing: true,
+      // aspect: [1, 1],
+      // quality: 1,
     });
 
     if (route.params?.newProduct) {

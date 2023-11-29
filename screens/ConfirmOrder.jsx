@@ -1,18 +1,22 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
 import Heading from "../components/Heading";
-import { cartItems } from "./Cart";
 import ConfirmOrderItem from "../components/ConfirmOrderItem";
 import { Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const ConfirmOrder = () => {
-  const itemPrice = 400;
-  const shippingCharge = 50;
-  const tax = 0.18 * itemPrice;
-  const totalAmount = itemPrice + shippingCharge + tax;
+  const { cartItems } = useSelector((state) => state.cart);
+
+  const [itemsPrice] = useState(
+    cartItems.reduce((prev, curr) => prev + curr.quantity * curr.price, 0)
+  );
+  const [shippingCharge] = useState(itemsPrice > 10000 ? 0 : 120);
+  const [tax] = useState(Number((0.18 * itemsPrice).toFixed()));
+  const [totalAmount] = useState(itemsPrice + shippingCharge + tax);
 
   const navigate = useNavigation();
   return (
@@ -44,7 +48,7 @@ const ConfirmOrder = () => {
           ))}
         </ScrollView>
       </View>
-      <PriceTag heading={"Subtotal"} value={itemPrice} />
+      <PriceTag heading={"Subtotal"} value={itemsPrice} />
       <PriceTag heading={"Shipping"} value={shippingCharge} />
       <PriceTag heading={"Tax"} value={tax} />
       <PriceTag heading={"Total"} value={totalAmount} />
@@ -52,7 +56,7 @@ const ConfirmOrder = () => {
       <TouchableOpacity
         onPress={() =>
           navigate.navigate("payment", {
-            itemPrice,
+            itemsPrice,
             shippingCharge,
             tax,
             totalAmount,

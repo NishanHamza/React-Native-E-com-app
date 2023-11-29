@@ -4,16 +4,28 @@ import { colors, defaultStyle, formStyles } from "../../styles/styles";
 import ButtonBox from "../../components/ButtonBox";
 import Header from "../../components/Header";
 import ProductListHeading from "../../components/ProductListHeading";
-import { products } from "../Home";
 import ProductListItem from "../../components/ProductListItem";
 import Chart from "../../components/Chart";
 import Loader from "../../components/Loader";
+import { useDispatch } from "react-redux";
+import { useIsFocused } from "@react-navigation/native";
+import { useGetAdminProducts, useMsgErrOther } from "../../utils/hooks";
+import { deleteProduct } from "../../redux/actions/otherAction";
+import { getAdminProducts } from "../../redux/actions/productAction";
 
 const AdminDashboard = ({ navigation }) => {
+  const isFocused = useIsFocused();
+  const dispatch = useDispatch();
+
+  const { loading, products, outOfStock, inStock } = useGetAdminProducts(
+    dispatch,
+    isFocused
+  );
+  useMsgErrOther(dispatch, null, null, getAdminProducts);
   const deleteHandler = (id) => {
-    console.log(`Deleting Products with ID:${id}`);
+    dispatch(deleteProduct(id));
   };
-  const loading = false;
+
   const navigateHandler = (text) => {
     switch (text) {
       case "Category":
@@ -27,8 +39,8 @@ const AdminDashboard = ({ navigation }) => {
         break;
 
       default:
-        case "Category":
-        navigation.navigate("categories")
+      case "Category":
+        navigation.navigate("categories");
         break;
     }
   };
@@ -49,7 +61,7 @@ const AdminDashboard = ({ navigation }) => {
               alignItems: "center",
             }}
           >
-            <Chart inStock={12} outOfStock={2} />
+            <Chart inStock={inStock} outOfStock={outOfStock} />
           </View>
           <View
             style={{
@@ -87,7 +99,7 @@ const AdminDashboard = ({ navigation }) => {
                 price={item.price}
                 stock={item.stock}
                 name={item.name}
-                category={item.category}
+                category={item.category?.category}
                 imgSrc={item.images[0].url}
               />
             ))}

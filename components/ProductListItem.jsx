@@ -75,14 +75,14 @@ const ProductListItem = ({
           </Text>
         </View>
       </TouchableOpacity>
-      {openModal && 
+      {openModal && (
         <MyModal
           id={id}
           navigate={navigate}
           deleteHandler={deleteHandler}
           setOpenModal={setOpenModal}
         />
-      }
+      )}
     </>
   );
 };

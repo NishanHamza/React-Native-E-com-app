@@ -9,6 +9,10 @@ import {
 } from "../styles/styles";
 import { Avatar, Button, TextInput } from "react-native-paper";
 import Footer from "../components/Footer";
+import { useDispatch } from "react-redux";
+import { signup } from "../redux/actions/userAction";
+import { useMsgErrUser } from "../utils/hooks";
+import mime from "mime";
 
 const SignUp = ({ navigation, route }) => {
   const [avater, setAvater] = useState("");
@@ -23,11 +27,31 @@ const SignUp = ({ navigation, route }) => {
   const disableBtn =
     !name || !email || !password || !address || !city || !country || !pinCode;
 
-  const submitHandler = () => {
-    alert("yeah");
-  };
+  const dispatch = useDispatch();
 
-  const loading = false;
+  const loading = useMsgErrUser(navigation, dispatch, "profile");
+
+  const submitHandler = () => {
+    const myForm = new FormData();
+
+    myForm.append("name", name);
+    myForm.append("email", email);
+    myForm.append("password", password);
+    myForm.append("address", address);
+    myForm.append("city", city);
+    myForm.append("country", country);
+    myForm.append("pinCode", pinCode);
+
+    if (avater !== "") {
+      myForm.append("file", {
+        uri: avater,
+        type: mime.getType(avater),
+        name: avater.split("/").pop(),
+      });
+    }
+
+    dispatch(signup(myForm));
+  };
 
   useEffect(() => {
     if (route.params?.image) {

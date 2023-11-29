@@ -21,10 +21,20 @@ import UpdateProduct from "./screens/Admin/UpdateProduct";
 import NewProduct from "./screens/Admin/NewProduct";
 import ProductImage from "./screens/Admin/ProductImage";
 import Camera from "./screens/Camera";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { loadUser } from "./redux/actions/userAction";
+import OrderDetails from "./screens/OrderDetails";
 
 const Stack = createNativeStackNavigator();
 
 const Main = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadUser());
+  }, [dispatch]);
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -45,6 +55,7 @@ const Main = () => {
           <Stack.Screen name="updateprofile" component={UpdateProfile} />
           <Stack.Screen name="changepassword" component={ChangePassword} />
           <Stack.Screen name="orders" component={Orders} />
+          <Stack.Screen name="orderdetails" component={OrderDetails} />
           <Stack.Screen name="camera" component={Camera} />
           {/* Admin Dahsboard Panel */}
           <Stack.Screen name="admin" component={AdminDashboard} />
@@ -55,7 +66,7 @@ const Main = () => {
           <Stack.Screen name="productimage" component={ProductImage} />
         </Stack.Group>
       </Stack.Navigator>
-      <Toast position="bottom" bottomOffset={20} />
+      <Toast position="top" visibilityTime={2000} />
     </NavigationContainer>
   );
 };

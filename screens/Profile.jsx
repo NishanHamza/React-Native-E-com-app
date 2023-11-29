@@ -5,19 +5,26 @@ import { Avatar, Button } from "react-native-paper";
 import ButtonBox from "../components/ButtonBox";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
-
-const user = {
-  name: "Nishan",
-  email: "sample@gmail.com",
-};
-
-const loading = false;
+import { useDispatch, useSelector } from "react-redux";
+import { loadUser, logout } from "../redux/actions/userAction";
+import { useMsgErrOther, useMsgErrUser } from "../utils/hooks";
+import { useIsFocused } from "@react-navigation/native";
+import mime from "mime";
+import { updatePic } from "../redux/actions/otherAction";
 
 const Profile = ({ navigation, route }) => {
-  const [avater, setAvater] = useState();
+  const { user } = useSelector((state) => state.user);
+
+  const [avater, setAvater] = useState(defaultImg);
+
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
+  const { loading } = useMsgErrUser(navigation, dispatch, "login");
+
   const logouthandler = () => {
-    console.log("Signing Out");
+    dispatch(logout());
   };
+
   const navigateHandler = (text) => {
     switch (text) {
       case "Orders":
@@ -43,12 +50,26 @@ const Profile = ({ navigation, route }) => {
     }
   };
 
+  const loadingPic = useMsgErrOther(dispatch, null, null, loadUser);
+
   useEffect(() => {
     if (route.params?.image) {
       setAvater(route.params.image);
-      //dispatch update here
+      const myForm = new FormData();
+
+      myForm.append("file", {
+        uri: route.params.image,
+        type: mime.getType(route.params.image),
+        name: route.params.image.split("/").pop(),
+      });
+      dispatch(updatePic(myForm));
     }
-  }, [route.params]);
+    dispatch(loadUser());
+  }, [route.params, dispatch, isFocused]);
+
+  useEffect(() => {
+    setAvater(user?.avater?.url);
+  }, [user]);
 
   return (
     <>
@@ -65,17 +86,24 @@ const Profile = ({ navigation, route }) => {
             >
               <Avatar.Image
                 source={{
-                  uri: avater ? avater : defaultImg,
+                  uri: avater,
                 }}
                 size={80}
                 style={{ backgroundColor: colors.color1 }}
               />
               <TouchableOpacity
+                disabled={loadingPic}
                 onPress={() =>
                   navigation.navigate("camera", { updateProfile: true })
                 }
               >
-                <Button textColor={colors.color1}>Change Photo</Button>
+                <Button
+                  disabled={loadingPic}
+                  loading={loadingPic}
+                  textColor={colors.color1}
+                >
+                  Change Photo
+                </Button>
               </TouchableOpacity>
               <Text
                 style={{
@@ -85,7 +113,7 @@ const Profile = ({ navigation, route }) => {
                   marginTop: 10,
                 }}
               >
-                {user.name}
+                {user?.name}
               </Text>
               <Text
                 style={{
@@ -93,7 +121,7 @@ const Profile = ({ navigation, route }) => {
                   fontWeight: "300",
                 }}
               >
-                {user.email}
+                {user?.email}
               </Text>
             </View>
             <View>
@@ -109,12 +137,14 @@ const Profile = ({ navigation, route }) => {
                   handler={navigateHandler}
                   icon={"format-list-bulleted-square"}
                 />
-                <ButtonBox
-                  text={"Admin"}
-                  handler={navigateHandler}
-                  icon={"view-dashboard"}
-                  reversed={true}
-                />
+                {user?.role === "admin" && (
+                  <ButtonBox
+                    text={"Admin"}
+                    handler={navigateHandler}
+                    icon={"view-dashboard"}
+                    reversed={true}
+                  />
+                )}
                 <ButtonBox
                   text={"Profile"}
                   handler={navigateHandler}

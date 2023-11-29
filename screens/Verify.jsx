@@ -8,15 +8,21 @@ import {
 } from "../styles/styles";
 import { Button, TextInput } from "react-native-paper";
 import Footer from "../components/Footer";
+import { useDispatch } from "react-redux";
+import { useMsgErrOther } from "../utils/hooks";
+import { resetPassword } from "../redux/actions/otherAction";
 
 const Verify = ({ navigation }) => {
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
-  const submitHandler = () => {
-    navigation.navigate("login");
-  };
 
-  const loading = false;
+  const dispatch = useDispatch();
+
+  const loading = useMsgErrOther(dispatch, navigation, "login");
+
+  const submitHandler = () => {
+    dispatch(resetPassword(otp, password));
+  };
 
   return (
     <>

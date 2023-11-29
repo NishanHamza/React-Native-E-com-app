@@ -4,21 +4,38 @@ import { colors, defaultStyle, formStyles } from "../../styles/styles";
 import Header from "../../components/Header";
 import ImageCard from "../../components/ImageCard";
 import { Avatar, Button } from "react-native-paper";
+// import { useIsFocused } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { useMsgErrOther } from "../../utils/hooks";
+import {
+  addProductImage,
+  deleteProductImage,
+} from "../../redux/actions/otherAction";
+import mime from "mime";
 
 const ProductImage = ({ navigation, route }) => {
   const [images] = useState(route.params.images);
   const [productId] = useState(route.params.id);
-
   const [image, setImage] = useState();
-  const [imageChanged, setImageChanged] = useState();
-  const loading = false;
 
-  const deleteHandler = (id) => {
-    console.log("image Id", id);
-    console.log("Product Id", productId);
+  const dispatch = useDispatch();
+
+  const loading = useMsgErrOther(dispatch, navigation, "admin");
+
+  const deleteHandler = (imageId) => {
+    dispatch(deleteProductImage(productId, imageId));
   };
 
-  const submitHandler = () => {};
+  const submitHandler = () => {
+    const myForm = new FormData();
+
+    myForm.append("file", {
+      uri: image,
+      type: mime.getType(image),
+      name: image.split("/").pop(),
+    });
+    dispatch(addProductImage(productId, myForm));
+  };
 
   useEffect(() => {
     if (route.params?.image) {
@@ -101,7 +118,7 @@ const ProductImage = ({ navigation, route }) => {
           }}
           loading={loading}
           onPress={submitHandler}
-          disabled={!imageChanged}
+          disabled={!image}
         >
           Add
         </Button>

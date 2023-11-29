@@ -5,38 +5,13 @@ import Header from "../components/Header";
 import Loader from "../components/Loader";
 import { Headline } from "react-native-paper";
 import OrderItem from "../components/OrderItem";
-
-export const orders = [
-  {
-    _id: "ffsadfa",
-    shippingInfo: {
-      address: " 23 agg",
-      city: "dhaka",
-      country: "BD",
-      pinCode: 124213,
-    },
-    createdAt: "12-3-21",
-    orderStatus: "processing",
-    totalAmount: 4534,
-    paymentMethod: "Online",
-  },
-  {
-    _id: "ffsadffsdfgga",
-    shippingInfo: {
-      address: " 23 agg",
-      city: "dhaka",
-      country: "Bd",
-      pinCode: 45654,
-    },
-    createdAt: "12-3-21",
-    orderStatus: "processing",
-    totalAmount: 6634,
-    paymentMethod: "Online",
-  },
-];
+import { useGetOrders } from "../utils/hooks";
+import { useIsFocused } from "@react-navigation/native";
 
 const Orders = () => {
-  const loading = false;
+  const isFocused = useIsFocused();
+  const { loading, orders } = useGetOrders(isFocused);
+
   return (
     <View style={{ ...defaultStyle }}>
       <Header back={true} />

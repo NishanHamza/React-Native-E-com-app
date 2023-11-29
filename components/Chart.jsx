@@ -3,7 +3,7 @@ import React from "react";
 import { PieChart } from "react-native-chart-kit";
 import { colors } from "../styles/styles";
 
-const screenWidth = Dimensions.get("screen").width -60 -75;
+const screenWidth = Dimensions.get("screen").width - 60 - 75;
 
 const Chart = ({ inStock = 0, outOfStock = 0 }) => {
   const data = [
