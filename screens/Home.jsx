@@ -177,6 +177,7 @@ const Home = () => {
           </ScrollView>
         </View>
       </View>
+
       <Footer activeRoute={"home"} />
     </>
   );

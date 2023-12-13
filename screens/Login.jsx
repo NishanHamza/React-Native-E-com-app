@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import { View, Text, TouchableOpacity, Keyboard } from "react-native";
+import React, { useEffect, useState } from "react";
 import {
   colors,
   defaultStyle,
@@ -13,6 +13,8 @@ import { login } from "../redux/actions/userAction";
 import { useMsgErrUser } from "../utils/hooks";
 
 const Login = ({ navigation }) => {
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -23,6 +25,22 @@ const Login = ({ navigation }) => {
   const submitHandler = () => {
     dispatch(login(email, password));
   };
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => setIsKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   return (
     <>
@@ -70,7 +88,7 @@ const Login = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Footer activeRoute={"profile"} />
+      {!isKeyboardVisible && <Footer activeRoute={"profile"} />}
     </>
   );
 };

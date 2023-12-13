@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Keyboard,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   colors,
@@ -15,6 +21,8 @@ import { useMsgErrUser } from "../utils/hooks";
 import mime from "mime";
 
 const SignUp = ({ navigation, route }) => {
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
   const [avater, setAvater] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -58,6 +66,22 @@ const SignUp = ({ navigation, route }) => {
       setAvater(route.params.image);
     }
   }, [route.params]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => setIsKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   return (
     <>
@@ -141,12 +165,14 @@ const SignUp = ({ navigation, route }) => {
               activeOpacity={0.8}
               onPress={() => navigation.navigate("login")}
             >
-              <Text style={formStyles.link}>login</Text>
+              <Text style={{ ...formStyles.link, paddingBottom: 70 }}>
+                login
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
-      <Footer activeRoute={"profile"} />
+      {!isKeyboardVisible && <Footer activeRoute={"profile"} />}
     </>
   );
 };
