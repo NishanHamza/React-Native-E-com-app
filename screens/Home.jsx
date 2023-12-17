@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
@@ -16,7 +10,7 @@ import Footer from "../components/Footer";
 import Heading from "../components/Heading";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../redux/actions/productAction";
-import { useSetCategories } from "../utils/hooks";
+import { useServerStatus, useSetCategories } from "../utils/hooks";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import AppStart from "../components/AppStart";
 
@@ -71,9 +65,11 @@ const Home = () => {
     };
   }, [dispatch, searchQuery, category, isFocused]);
 
+  const { status } = useServerStatus(isFocused);
+
   return (
     <>
-      {loading && <AppStart />}
+      {status !== "Working" && <AppStart />}
       {activeSearch && (
         <SearchModal
           searchQuery={searchQuery}
@@ -160,7 +156,7 @@ const Home = () => {
         {/* products */}
 
         <View style={{ flex: 1 }}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView overScrollMode="never" horizontal showsHorizontalScrollIndicator={false}>
             {products.map((item, index) => (
               <ProductCard
                 stock={item.stock}

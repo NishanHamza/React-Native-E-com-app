@@ -161,3 +161,21 @@ export const useGetAdminProducts = (dispatch, isFocused) => {
     inStock,
   };
 };
+
+export const useServerStatus = (isFocused) => {
+  const [status, setStatus] = useState();
+  useEffect(() => {
+    axios
+      .get(`https://ecommerce-server-xjdz.onrender.com/`)
+      .then((res) => {
+        setStatus(res.data);
+      })
+      .catch((e) => {
+        Toast.show({
+          type: "error",
+          text1: e.response.data.message,
+        });
+      });
+  }, [isFocused]);
+  return { status };
+};
